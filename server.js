@@ -1,75 +1,63 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const mysql = require('mysql');
-const bcrypt = require('bcrypt');
-const cors = require('cors'); // Import the cors module
+window.addEventListener('DOMContentLoaded', function() {
+  // Your code here
+  window.onload = function() {
+    // Generate a random number between 1 and 10
+    var randomBg = Math.floor(Math.random() * 10) + 1;
+    
+    // Set the background image
+    document.body.style.backgroundImage = "url('../img/bedwars/" + randomBg + ".png')";
+  };
 
-const app = express();
-const port = 3000;
+  // Login form submission
+  document.getElementById('loginForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the default form submission
 
-// MySQL connection configuration
-const connection = mysql.createConnection({
-  host: '45.88.109.142',
-  port: 45,
-  user: 'user',
-  password: 'milka4444!',
-  database: 'dev'
-});
+    // Simulate successful login
+    // For demonstration purposes, let's assume the login is successful
+    const username = document.getElementById('username').value;
 
-// Connect to MySQL
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL: ' + err.stack);
-    return;
-  }
-  console.log('Connected to MySQL as id ' + connection.threadId);
-});
+    // Show success message or redirect to dashboard
+    alert('Welcome, ' + username + '!'); // You can modify this to suit your needs
+    // window.location.href = '/dashboard.html'; // You can uncomment this to redirect to a dashboard page
+  });
 
-// Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(cors({ origin: '*' }));
+  // Registration form submission
+  document.getElementById('registrationForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent the default form submission
 
-// Routes
-app.get('/', (req, res) => {
-  res.send('Welcome to the user system!');
-});
+    // Get the form data
+    const formData = new FormData(this);
 
-// Register endpoint
-app.post('/register', (req, res) => {
-  console.log('Request Body:', req.body); // Log the request body
-  const { username, email, password } = req.body;
+    // Convert form data to JSON format
+    const jsonData = {};
+    formData.forEach((value, key) => {
+      jsonData[key] = value;
+    });
 
-  // Ensure password is provided
-  if (!password) {
-    res.status(400).send('Password is required');
-    return;
-  }
-
-  // Hash password
-  bcrypt.hash(password, 10, (err, hashedPassword) => {
-    if (err) {
-      console.error('Error hashing password: ' + err.stack);
-      res.status(500).send('Error hashing password');
-      return;
-    }
-
-    const user = { username, email, password: hashedPassword };
-
-    // Insert user into the database
-    connection.query('INSERT INTO users SET ?', user, (error, results, fields) => {
-      if (error) {
-        console.error('Error registering user: ' + error.stack);
-        res.status(500).send('Error registering user');
-        return;
+    // Send the registration request using fetch API
+    fetch('http://localhost:3000/register', { // Adjust the URL if needed
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(jsonData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
       }
-      console.log('User registered successfully');
-      res.status(200).send('User registered successfully');
+      return response.text();
+    })
+    .then(data => {
+      // Show success message
+      alert(data);
+      // Optionally, redirect to another page after successful registration
+      // window.location.href = '/success.html';
+    })
+    .catch(error => {
+      console.error('There was a problem with the registration:', error);
+      // Show error message
+      alert('There was a problem with the registration. Please try again later.');
     });
   });
-});
-
-// Start server
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
 });
