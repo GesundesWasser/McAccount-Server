@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken'); // Import JWT library
 const cors = require('cors');
 
 const app = express();
@@ -103,7 +104,11 @@ app.post('/login', (req, res) => {
       }
 
       if (result) {
-        res.status(200).send('Login successful');
+        // Generate JWT token
+        const token = jwt.sign({ username: user.username }, 'your_secret_key_here', { expiresIn: '1h' }); // Change 'your_secret_key_here' with your actual secret key
+        
+        // Send token in response
+        res.status(200).json({ message: 'Login successful', token: token });
       } else {
         res.status(401).send('Invalid username or password');
       }
