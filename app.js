@@ -1,7 +1,8 @@
 const express = require('express');
-const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
+const bcrypt = require('bcrypt');
+const cors = require('cors'); // Import the cors module
 
 const app = express();
 const port = 3000;
@@ -9,7 +10,7 @@ const port = 3000;
 // MySQL connection configuration
 const connection = mysql.createConnection({
   host: '45.88.109.142',
-  port: '45',
+  port: 45,
   user: 'user',
   password: 'milka4444!',
   database: 'dev'
@@ -27,6 +28,7 @@ connection.connect((err) => {
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+app.use(cors({ origin: '*' }));
 
 // Routes
 app.get('/', (req, res) => {
@@ -35,7 +37,14 @@ app.get('/', (req, res) => {
 
 // Register endpoint
 app.post('/register', (req, res) => {
+  console.log('Request Body:', req.body); // Log the request body
   const { username, email, password } = req.body;
+
+  // Ensure password is provided
+  if (!password) {
+    res.status(400).send('Password is required');
+    return;
+  }
 
   // Hash password
   bcrypt.hash(password, 10, (err, hashedPassword) => {
