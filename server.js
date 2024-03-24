@@ -105,7 +105,7 @@ app.post('/login', (req, res) => {
 
       if (result) {
         // Generate JWT token
-        const token = jwt.sign({ username: user.username }, 'your_secret_key_here', { expiresIn: '1h' }); // Change 'your_secret_key_here' with your actual secret key
+        const token = jwt.sign({ username: user.username }, '1admin1', { expiresIn: '365d' }); // The Secret key here.
         
         // Send token in response
         res.status(200).json({ message: 'Login successful', token: token });
