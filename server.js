@@ -3,7 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const connection = require('./dbConfig');
+const connection = require('./dbConfig.js');
+const verifyToken = require('./authMiddleware.js');
 
 const app = express();
 const port = 3000;
@@ -70,7 +71,7 @@ app.post('/auth', (req, res) => {
 
                 if (result) {
                     // Generate JWT token
-                    const token = jwt.sign({ username: user.username }, '1admin1', { expiresIn: '365d' });
+                    const token = jwt.sign({ username: user.username }, 'your_secret_key_here', { expiresIn: '365d' });
                     res.status(200).json({ token });
                 } else {
                     res.status(401).send('Invalid username or password');
@@ -80,6 +81,12 @@ app.post('/auth', (req, res) => {
     } else {
         res.status(400).send('Invalid action');
     }
+});
+
+// Protected route example
+app.get('/protected-route', verifyToken, (req, res) => {
+    // This route is protected and can only be accessed with a valid token
+    res.send('This is a protected route');
 });
 
 // Start server
